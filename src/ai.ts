@@ -26,6 +26,9 @@ function getOpenAIClient(): OpenAI | null {
 }
 
 const getRes = async (prompt: string) => {
+  console.log("config.ai.apiKey: ", config.ai.apiKey);
+  console.log("config.ai.model: ", config.ai.model);
+
   return await fetch("http://dap-new-api.lilithgames.com/v1/responses", {
     method: "POST",
     headers: {
