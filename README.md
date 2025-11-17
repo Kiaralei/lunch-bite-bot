@@ -117,8 +117,8 @@ lunch-bite-bot/
 - `WEATHER_CITY`: 城市名称（默认：Beijing）
 - `WEATHER_LAT`: 纬度（默认：39.9042，北京）
 - `WEATHER_LON`: 经度（默认：116.4074，北京）
-- `OPENAI_API_KEY`: OpenAI API Key（不配置会使用基础推荐）
-- `OPENAI_MODEL`: OpenAI 模型（默认：gpt-3.5-turbo）
+- `NEWAPI_TOKEN`: NEWAPI_TOKEN（不配置会使用基础推荐）
+- `NEWAPI_MODEL`: OpenAI 模型（默认：gpt-3.5-turbo）
 - `REMINDER_HOUR`: 提醒小时（24 小时制，默认：12）
 - `REMINDER_MINUTE`: 提醒分钟（默认：0）
 
@@ -130,7 +130,57 @@ lunch-bite-bot/
 
 ## 🚢 部署建议
 
-### 使用 PM2 部署（推荐）
+### 使用 GitHub Actions 部署（推荐，免费）
+
+GitHub Actions 可以免费运行定时任务，非常适合这个项目。
+
+#### 步骤1: 配置 GitHub Secrets
+
+1. 进入你的 GitHub 仓库
+2. 点击 `Settings` → `Secrets and variables` → `Actions`
+3. 点击 `New repository secret`，添加以下 secrets：
+
+   - `FEISHU_WEBHOOK_URL`: 飞书 Webhook URL（必需）
+   - `WEATHER_API_KEY`: 天气 API Key（可选）
+   - `WEATHER_CITY`: 城市名称（可选，默认：Beijing）
+   - `WEATHER_LAT`: 纬度（可选，默认：39.9042）
+   - `WEATHER_LON`: 经度（可选，默认：116.4074）
+   - `OPENAI_API_KEY`: OpenAI API Key（可选）
+   - `OPENAI_MODEL`: OpenAI 模型（可选，默认：gpt-3.5-turbo）
+   - `REMINDER_HOUR`: 提醒小时（可选，默认：12）
+   - `REMINDER_MINUTE`: 提醒分钟（可选，默认：0）
+
+#### 步骤2: 调整定时时间
+
+编辑 `.github/workflows/lunch-reminder.yml` 文件中的 `cron` 表达式：
+
+```yaml
+schedule:
+  - cron: '0 4 * * *'  # UTC 4:00 = 北京时间 12:00
+```
+
+**时区说明**：
+- GitHub Actions 使用 UTC 时间
+- 北京时间 = UTC + 8
+- 例如：北京时间 12:00 = UTC 04:00
+
+#### 步骤3: 测试运行
+
+1. 在 GitHub 仓库页面，点击 `Actions` 标签
+2. 选择 `午餐提醒机器人` workflow
+3. 点击 `Run workflow` 手动触发一次测试
+
+#### 步骤4: 查看运行日志
+
+在 `Actions` 页面可以查看每次运行的日志，确认是否成功发送消息。
+
+**优点**：
+- ✅ 完全免费（私有仓库每月 2000 分钟，公开仓库无限）
+- ✅ 无需维护服务器
+- ✅ 自动运行，无需担心服务器重启
+- ✅ 可以查看运行历史
+
+### 使用 PM2 部署（需要服务器）
 
 ```bash
 # 安装PM2

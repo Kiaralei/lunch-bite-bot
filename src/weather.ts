@@ -6,9 +6,10 @@ import { config } from "./config";
 
 export interface WeatherData {
   temp: number;
+  feelsLike: number;
   description: string;
-  humidity: number;
-  windSpeed: number;
+  rh: number;
+  windClass: number;
   city: string;
 }
 
@@ -26,17 +27,18 @@ export async function getWeather(): Promise<WeatherData | null> {
       return getMockWeather();
     }
 
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=zh_cn`;
+    const url = `https://api.map.baidu.com/weather/v1/?location=${lon},${lat}&lon=${lon}&data_type=now&ak=${apiKey}`;
 
     const response = await axios.get(url);
     const data = response.data;
 
     return {
-      temp: Math.round(data.main.temp),
-      description: data.weather[0].description,
-      humidity: data.main.humidity,
-      windSpeed: data.wind?.speed || 0,
-      city: data.name || config.weather.city,
+      temp: data.result.now.temp,
+      feelsLike: data.result.now.feels_like,
+      description: data.result.now.text,
+      rh: data.result.now.rh || 0,
+      windClass: data.result.now.wind_class || 0,
+      city: data.result.location.city || config.weather.city,
     };
   } catch (error: any) {
     console.error("❌ 获取天气信息失败:", error.message);
@@ -56,9 +58,10 @@ function getMockWeather(): WeatherData {
 
   return {
     temp: randomTemp,
+    feelsLike: randomTemp,
     description: randomDesc,
-    humidity: Math.floor(Math.random() * 40) + 40,
-    windSpeed: Math.random() * 5,
+    rh: Math.floor(Math.random() * 40) + 40,
+    windClass: Math.random() * 5,
     city: config.weather.city,
   };
 }

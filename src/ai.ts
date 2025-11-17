@@ -1,9 +1,9 @@
 /**
  * AI分析推荐服务
  */
-import OpenAI from 'openai';
-import { config } from './config';
-import { WeatherData } from './weather';
+import OpenAI from "openai";
+import { config } from "./config";
+import { WeatherData } from "./weather";
 
 let openaiClient: OpenAI | null = null;
 
@@ -12,7 +12,7 @@ let openaiClient: OpenAI | null = null;
  */
 function getOpenAIClient(): OpenAI | null {
   if (!config.ai.apiKey) {
-    console.warn('⚠️ 未配置OpenAI API Key，将使用基础推荐');
+    console.warn("⚠️ 未配置OpenAI API Key，将使用基础推荐");
     return null;
   }
 
@@ -25,10 +25,26 @@ function getOpenAIClient(): OpenAI | null {
   return openaiClient;
 }
 
+const getRes = async (prompt: string) => {
+  return await fetch("http://dap-new-api.lilithgames.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${config.ai.apiKey || ""}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: config.ai.model,
+      input: prompt,
+    }),
+  });
+};
+
 /**
  * 使用AI分析天气并生成个性化推荐
  */
-export async function getAIRecommendation(weather: WeatherData): Promise<string> {
+export async function getAIRecommendation(
+  weather: WeatherData
+): Promise<string> {
   const client = getOpenAIClient();
 
   if (!client) {
@@ -40,39 +56,50 @@ export async function getAIRecommendation(weather: WeatherData): Promise<string>
 
 天气信息：
 - 城市：${weather.city}
-- 温度：${weather.temp}°C
+- 温度：${weather.temp}°C，体感温度：${weather.feelsLike}°C
 - 天气状况：${weather.description}
-- 湿度：${weather.humidity}%
-- 风速：${weather.windSpeed} m/s
+- 相对湿度：${weather.rh}%
+- 风力登记：${weather.windClass} 级
 
 请根据这些天气信息，用中文生成一段温馨、有趣的午餐推荐，包括：
 1. 根据天气推荐适合的食物类型（比如热汤、凉面、火锅等）
 2. 推荐2-3个具体的外卖选择
 3. 用轻松幽默的语气，不要太正式
+4. 内容不要过长，控制在200字以内
 
 回复格式：直接给出推荐内容，不要额外的格式标记。`;
 
-    const completion = await client.chat.completions.create({
-      model: config.ai.model,
-      messages: [
-        {
-          role: 'system',
-          content: '你是一个贴心的午餐推荐助手，擅长根据天气情况推荐合适的外卖。',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.8,
-      max_tokens: 500,
-    });
+    console.log("prompt: ", prompt);
 
-    const recommendation = completion.choices[0]?.message?.content || '';
-    return recommendation.trim() || getBasicRecommendation(weather);
+    const res = await getRes(prompt);
+    const data = await res.json();
+
+    return (
+      (data as any)?.output?.find((item: any) => item.status === "completed")
+        ?.content?.[0]?.text || ""
+    );
+
+    //   model: config.ai.model,
+    //   messages: [
+    //     {
+    //       role: "system",
+    //       content:
+    //         "你是一个贴心的午餐推荐助手，擅长根据天气情况推荐合适的外卖。",
+    //     },
+    //     {
+    //       role: "user",
+    //       content: prompt,
+    //     },
+    //   ],
+    //   temperature: 0.8,
+    //   max_tokens: 500,
+    // });
+
+    // const recommendation = completion.choices[0]?.message?.content || "";
+    // return recommendation.trim() || getBasicRecommendation(weather);
   } catch (error: any) {
-    console.error('❌ AI分析失败:', error.message);
-    console.warn('⚠️ 使用基础推荐');
+    console.error("❌ AI分析失败:", error.message);
+    console.warn("⚠️ 使用基础推荐");
     return getBasicRecommendation(weather);
   }
 }
@@ -82,27 +109,28 @@ export async function getAIRecommendation(weather: WeatherData): Promise<string>
  */
 function getBasicRecommendation(weather: WeatherData): string {
   const { temp, description } = weather;
-  
+
   const recommendations: string[] = [];
-  
+
   // 根据温度推荐
   if (temp < 10) {
-    recommendations.push('🍲 热汤类：麻辣烫、小火锅、牛肉面');
-    recommendations.push('🔥 热食类：盖饭、炒菜、汤面');
+    recommendations.push("🍲 热汤类：麻辣烫、小火锅、牛肉面");
+    recommendations.push("🔥 热食类：盖饭、炒菜、汤面");
   } else if (temp > 30) {
-    recommendations.push('🍜 清爽类：凉面、沙拉、寿司');
-    recommendations.push('🥤 冷饮类：冰镇饮料、果汁、奶茶');
+    recommendations.push("🍜 清爽类：凉面、沙拉、寿司");
+    recommendations.push("🥤 冷饮类：冰镇饮料、果汁、奶茶");
   } else {
-    recommendations.push('🍱 盖饭类：各种盖饭、炒饭');
-    recommendations.push('🍜 面食类：拉面、炒面、汤面');
-    recommendations.push('🍔 快餐类：汉堡、炸鸡、披萨');
+    recommendations.push("🍱 盖饭类：各种盖饭、炒饭");
+    recommendations.push("🍜 面食类：拉面、炒面、汤面");
+    recommendations.push("🍔 快餐类：汉堡、炸鸡、披萨");
   }
 
   // 根据天气状况调整
-  if (description.includes('雨')) {
-    recommendations.push('💡 提示：今天有雨，建议选择配送快的商家');
+  if (description.includes("雨")) {
+    recommendations.push("💡 提示：今天有雨，建议选择配送快的商家");
   }
 
-  return `根据今天的天气（${temp}°C，${description}），我为你推荐：\n\n${recommendations.join('\n')}\n\n祝你用餐愉快！😊`;
+  return `根据今天的天气（${temp}°C，${description}），我为你推荐：\n\n${recommendations.join(
+    "\n"
+  )}\n\n祝你用餐愉快！😊`;
 }
-

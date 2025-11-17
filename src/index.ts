@@ -39,6 +39,7 @@ async function sendLunchReminder(): Promise<void> {
     const messageContent = `🍽️ **午餐时间到！**\n\n${aiRecommendation}\n\n---\n\n💡 **天气小贴士**\n${getWeatherRecommendation(
       weather
     )}`;
+    console.log("messageContent: ", messageContent);
 
     // 发送消息
     console.log("📤 正在发送消息到飞书...");
@@ -73,18 +74,18 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // // 设置定时任务（每天指定时间执行）
-  // const cronExpression = `${config.reminder.minute} ${config.reminder.hour} * * *`;
+  // 设置定时任务（每天指定时间执行）
+  const cronExpression = `${config.reminder.minute} ${config.reminder.hour} * * *`;
 
-  // console.log(`⏰ 定时任务已设置: ${cronExpression}`);
+  console.log(`⏰ 定时任务已设置: ${cronExpression}`);
 
-  // cron.schedule(cronExpression, async () => {
-  //   await sendLunchReminder();
-  // });
+  cron.schedule(cronExpression, async () => {
+    await sendLunchReminder();
+  });
 
   // 启动时立即执行一次
-  console.log("🔔 立即执行一次提醒（用于测试）...");
-  await sendLunchReminder();
+  // console.log("🔔 立即执行一次提醒（用于测试）...");
+  // await sendLunchReminder();
 
   console.log("✅ 机器人已启动，等待定时任务触发...");
   console.log("💡 提示: 按 Ctrl+C 退出程序");

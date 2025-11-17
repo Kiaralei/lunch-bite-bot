@@ -21,8 +21,8 @@ export const config = {
 
   // AI配置
   ai: {
-    apiKey: process.env.OPENAI_API_KEY || "",
-    model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
+    apiKey: process.env.NEWAPI_TOKEN || "",
+    model: process.env.NEWAPI_MODEL || "gpt-3.5-turbo",
   },
 
   // 提醒时间配置
