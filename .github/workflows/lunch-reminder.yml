@@ -44,8 +44,8 @@ jobs:
           WEATHER_CITY: ${{ secrets.WEATHER_CITY }}
           WEATHER_LAT: ${{ secrets.WEATHER_LAT }}
           WEATHER_LON: ${{ secrets.WEATHER_LON }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          NEWAPI_TOKEN: ${{ secrets.NEWAPI_TOKEN }}
+          NEWAPI_MODEL: ${{ secrets.NEWAPI_MODEL }}
           REMINDER_HOUR: ${{ secrets.REMINDER_HOUR }}
           REMINDER_MINUTE: ${{ secrets.REMINDER_MINUTE }}
         run: pnpm start

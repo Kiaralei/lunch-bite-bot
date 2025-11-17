@@ -69,7 +69,8 @@ async function main(): Promise<void> {
   );
 
   // 验证配置
-  if (!config.feishu.webhookUrl) {
+  if (!process.env.FEISHU_WEBHOOK_URL) {
+    // if (!config.feishu.webhookUrl) {
     console.error("❌ 错误: 请配置飞书 Webhook URL（FEISHU_WEBHOOK_URL）");
     process.exit(1);
   }
@@ -79,13 +80,13 @@ async function main(): Promise<void> {
 
   console.log(`⏰ 定时任务已设置: ${cronExpression}`);
 
-  cron.schedule(cronExpression, async () => {
-    await sendLunchReminder();
-  });
+  // cron.schedule(cronExpression, async () => {
+  //   await sendLunchReminder();
+  // });
 
   // 启动时立即执行一次
   // console.log("🔔 立即执行一次提醒（用于测试）...");
-  // await sendLunchReminder();
+  await sendLunchReminder();
 
   console.log("✅ 机器人已启动，等待定时任务触发...");
   console.log("💡 提示: 按 Ctrl+C 退出程序");
