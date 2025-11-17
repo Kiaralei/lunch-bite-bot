@@ -26,20 +26,50 @@ function getOpenAIClient(): OpenAI | null {
 }
 
 const getRes = async (prompt: string) => {
-  console.log("config.ai.apiKey: ", config.ai.apiKey);
-  console.log("config.ai.model: ", config.ai.model);
+  console.log("🔍 AI API 配置检查:");
+  console.log("  API Key 是否存在:", config.ai.apiKey ? "✅ 是" : "❌ 否");
+  console.log("  API Key 长度:", config.ai.apiKey?.length || 0);
+  console.log("  Model:", config.ai.model);
+  console.log("  API URL: http://dap-new-api.lilithgames.com/v1/responses");
 
-  return await fetch("http://dap-new-api.lilithgames.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${config.ai.apiKey || ""}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: config.ai.model,
-      input: prompt,
-    }),
-  });
+  if (!config.ai.apiKey) {
+    throw new Error("API Key 未配置");
+  }
+
+  try {
+    const response = await fetch(
+      "http://dap-new-api.lilithgames.com/v1/responses",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${config.ai.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: config.ai.model,
+          input: prompt,
+        }),
+      }
+    );
+
+    console.log("📡 API 响应状态:", response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ API 请求失败:");
+      console.error("  状态码:", response.status);
+      console.error("  错误信息:", errorText);
+      throw new Error(`API 请求失败: ${response.status} - ${errorText}`);
+    }
+
+    return response;
+  } catch (error: any) {
+    console.error("❌ 网络请求错误:", error.message);
+    if (error.cause) {
+      console.error("  错误原因:", error.cause);
+    }
+    throw error;
+  }
 };
 
 /**
@@ -72,15 +102,24 @@ export async function getAIRecommendation(
 
 回复格式：直接给出推荐内容，不要额外的格式标记。`;
 
-    console.log("prompt: ", prompt);
+    console.log("📝 发送 Prompt 到 AI API...");
 
     const res = await getRes(prompt);
     const data = await res.json();
 
-    return (
+    console.log("📥 API 响应数据:", JSON.stringify(data, null, 2));
+
+    const result =
       (data as any)?.output?.find((item: any) => item.status === "completed")
-        ?.content?.[0]?.text || ""
-    );
+        ?.content?.[0]?.text || "";
+
+    if (!result) {
+      console.warn("⚠️ AI 返回结果为空，使用基础推荐");
+      return getBasicRecommendation(weather);
+    }
+
+    console.log("✅ AI 推荐生成成功，长度:", result.length);
+    return result;
 
     //   model: config.ai.model,
     //   messages: [
