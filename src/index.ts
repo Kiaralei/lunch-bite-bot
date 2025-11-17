@@ -68,6 +68,19 @@ async function main(): Promise<void> {
     ).padStart(2, "0")}`
   );
 
+  console.log(
+    "process.env.FEISHU_WEBHOOK_URL: ",
+    process.env.FEISHU_WEBHOOK_URL
+  );
+  console.log("process.env.WEATHER_API_KEY: ", process.env.WEATHER_API_KEY);
+  console.log("process.env.WEATHER_CITY: ", process.env.WEATHER_CITY);
+  console.log("process.env.WEATHER_LAT: ", process.env.WEATHER_LAT);
+  console.log("process.env.WEATHER_LON: ", process.env.WEATHER_LON);
+  console.log("process.env.NEWAPI_TOKEN: ", process.env.NEWAPI_TOKEN);
+  console.log("process.env.NEWAPI_MODEL: ", process.env.NEWAPI_MODEL);
+  console.log("process.env.REMINDER_HOUR: ", process.env.REMINDER_HOUR);
+  console.log("process.env.REMINDER_MINUTE: ", process.env.REMINDER_MINUTE);
+
   // 验证配置
   if (!process.env.FEISHU_WEBHOOK_URL) {
     // if (!config.feishu.webhookUrl) {
