@@ -43,9 +43,9 @@ jobs:
           # 从 GitHub Secrets 中读取环境变量
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-          WEATHER_CITY: ${{ secrets.WEATHER_CITY }}
-          WEATHER_LAT: ${{ secrets.WEATHER_LAT }}
-          WEATHER_LON: ${{ secrets.WEATHER_LON }}
+          WEATHER_CITY: $WEATHER_CITY
+          WEATHER_LAT: $WEATHER_LAT
+          WEATHER_LON: $WEATHER_LON
           NEWAPI_TOKEN: ${{ secrets.NEWAPI_TOKEN }}
           NEWAPI_MODEL: ${{ secrets.NEWAPI_MODEL }}
           REMINDER_HOUR: ${{ secrets.REMINDER_HOUR }}
