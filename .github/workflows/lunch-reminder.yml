@@ -38,6 +38,18 @@ jobs:
       - name: 编译 TypeScript
         run: pnpm run build
 
+      - name: 获取 IP 地址
+        run: |
+          echo "🌐 GitHub Actions Runner IP 地址:"
+          echo "IPv4:"
+          curl -s https://api.ipify.org || echo "无法获取 IPv4"
+          echo ""
+          echo "IPv6:"
+          curl -s https://api64.ipify.org || echo "无法获取 IPv6"
+          echo ""
+          echo "详细 IP 信息:"
+          curl -s https://ipinfo.io/json || echo "无法获取详细信息"
+
       - name: 运行提醒任务
         env:
           # 从 GitHub Secrets 中读取环境变量
