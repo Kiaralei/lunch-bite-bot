@@ -4,18 +4,18 @@
 
 ## ✨ 功能特性
 
-- ⏰ **定时提醒**: 每天中午自动提醒点外卖
+- ⏰ **定时提醒**: 每天自动提醒点外卖（默认 11:15）
 - 🌤️ **天气感知**: 根据实时天气情况推荐适合的外卖
-- 🤖 **AI 智能分析**: 使用 OpenAI 分析天气并生成个性化推荐
-- 💬 **飞书集成**: 通过飞书群聊接收提醒和推荐
+- 🤖 **AI 智能分析**: 使用 AI API 分析天气并生成个性化推荐
+- 💬 **飞书集成**: 通过飞书群聊接收提醒和推荐（使用 Webhook 方式）
 
 ## 📋 前置要求
 
 - Node.js >= 16.0.0
-- npm 或 yarn
+- pnpm（推荐）或 npm
 - 飞书群聊（用于接收提醒消息）
 - OpenWeatherMap API Key（可选，用于获取天气）
-- OpenAI API Key（可选，用于 AI 分析）
+- AI API Key（可选，用于 AI 分析）
 
 ## 🚀 快速开始
 
@@ -41,17 +41,17 @@ FEISHU_WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxxxxxxx
 
 # 天气API配置（可选，不配置会使用模拟数据）
 WEATHER_API_KEY=your_weather_api_key
-WEATHER_CITY=Beijing
-WEATHER_LAT=39.9042
-WEATHER_LON=116.4074
+WEATHER_CITY=Shanghai
+WEATHER_LAT=31.163273
+WEATHER_LON=121.389084
 
 # AI分析配置（可选，不配置会使用基础推荐）
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-3.5-turbo
+NEWAPI_TOKEN=your_ai_api_key
+NEWAPI_MODEL=gpt-3.5-turbo
 
-# 提醒时间配置（可选，默认12:00）
-REMINDER_HOUR=12
-REMINDER_MINUTE=0
+# 提醒时间配置（可选，默认11:15）
+REMINDER_HOUR=11
+REMINDER_MINUTE=15
 ```
 
 ### 3. 获取飞书 Webhook URL
@@ -70,23 +70,26 @@ REMINDER_MINUTE=0
 2. 注册账号并创建 API Key
 3. 将 API Key 填入 `.env` 文件
 
-### 5. 获取 OpenAI API Key（可选）
+### 5. 获取 AI API Key（可选）
 
-1. 访问 [OpenAI Platform](https://platform.openai.com/)
-2. 创建账号并获取 API Key
-3. 将 API Key 填入 `.env` 文件
+根据你使用的 AI 服务提供商获取 API Key，并填入 `.env` 文件的 `NEWAPI_TOKEN`。
+
+**注意**: 如果 AI API 是内网服务，GitHub Actions 可能无法访问，建议部署到可访问内网的服务器。
 
 ### 6. 编译和运行
 
 ```bash
+# 安装依赖（使用 pnpm）
+pnpm install
+
 # 编译TypeScript
-npm run build
+pnpm run build
 
 # 运行程序
-npm start
+pnpm start
 
 # 或者开发模式（使用ts-node）
-npm run dev
+pnpm run dev
 ```
 
 ## 📁 项目结构
@@ -134,7 +137,7 @@ lunch-bite-bot/
 
 GitHub Actions 可以免费运行定时任务，非常适合这个项目。
 
-#### 步骤1: 配置 GitHub Secrets
+#### 步骤 1: 配置 GitHub Secrets
 
 1. 进入你的 GitHub 仓库
 2. 点击 `Settings` → `Secrets and variables` → `Actions`
@@ -150,31 +153,33 @@ GitHub Actions 可以免费运行定时任务，非常适合这个项目。
    - `REMINDER_HOUR`: 提醒小时（可选，默认：12）
    - `REMINDER_MINUTE`: 提醒分钟（可选，默认：0）
 
-#### 步骤2: 调整定时时间
+#### 步骤 2: 调整定时时间
 
 编辑 `.github/workflows/lunch-reminder.yml` 文件中的 `cron` 表达式：
 
 ```yaml
 schedule:
-  - cron: '0 4 * * *'  # UTC 4:00 = 北京时间 12:00
+  - cron: "0 4 * * *" # UTC 4:00 = 北京时间 12:00
 ```
 
 **时区说明**：
+
 - GitHub Actions 使用 UTC 时间
 - 北京时间 = UTC + 8
 - 例如：北京时间 12:00 = UTC 04:00
 
-#### 步骤3: 测试运行
+#### 步骤 3: 测试运行
 
 1. 在 GitHub 仓库页面，点击 `Actions` 标签
 2. 选择 `午餐提醒机器人` workflow
 3. 点击 `Run workflow` 手动触发一次测试
 
-#### 步骤4: 查看运行日志
+#### 步骤 4: 查看运行日志
 
 在 `Actions` 页面可以查看每次运行的日志，确认是否成功发送消息。
 
 **优点**：
+
 - ✅ 完全免费（私有仓库每月 2000 分钟，公开仓库无限）
 - ✅ 无需维护服务器
 - ✅ 自动运行，无需担心服务器重启
